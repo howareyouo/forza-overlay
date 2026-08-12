@@ -10,7 +10,7 @@ SCREEN_WIDTH = windll.user32.GetSystemMetrics(0)
 SCREEN_HEIGHT = windll.user32.GetSystemMetrics(1)
 # 游戏输出固定为 16:9，用于把窗口客户区换算成画面区域（去黑边）
 GAME_ASPECT = 16 / 9
-# 标题栏估算高度（px）：中文标题（Steam 版"极限竞速：地平线"系列）为 45px，其余为 48px
+# 标题栏估算高度（px）：中文标题（Steam 版"地平线"系列）为 45px，其余为 48px
 TITLEBAR_UWP = 45
 TITLEBAR_DEFAULT = 48
 
@@ -35,10 +35,10 @@ def game_version(title):
     英文：Forza Horizon 3 / 4 / 5
     中文：极限竞速：地平线3 / 4 / 5（冒号可能为半角或全角）
     """
-    if not title:
+    if not ("Forza Horizon" in title or "地平线" in title):
         return None
-    match = _VERSION_PATTERN.search(title)
-    return match.group(1) if match else None
+    ver = title[-1]
+    return ver + (ver if "地平线" in title else "")
 
 
 class _WINDOWINFO(ctypes.Structure):
@@ -109,7 +109,7 @@ def game_viewport(win_width, win_height):
 
 
 # 允许在窗口化模式下采样的版本（其余版本要求全屏）
-WINDOWED_ALLOWED_VERSIONS = {"5"}
+WINDOWED_ALLOWED_VERSIONS = {"5", "44"}
 
 
 def compute_ocr_region():
@@ -127,7 +127,7 @@ def compute_ocr_region():
 
     window_rect = window_client_rect(hwnd, title)
     if is_fullscreen(hwnd) and version not in WINDOWED_ALLOWED_VERSIONS:
-        print("Not in fullscreen mode")
+        print("Not in windowed mode")
         return None
 
     win_width = window_rect[2] - window_rect[0]

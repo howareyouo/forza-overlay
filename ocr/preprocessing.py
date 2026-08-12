@@ -27,6 +27,7 @@ def process_horizon5(image: cv2.typing.MatLike):
 PREPROCESSORS = {
     "3": process_horizon3,
     "4": process_horizon4,
+    "44": process_horizon4,
     "5": process_horizon5,
 }
 
