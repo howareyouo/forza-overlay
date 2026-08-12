@@ -5,7 +5,7 @@ from dataclasses import dataclass
 # 各版本调校数值在 OCR 数字序列中的下标映射 (a, b, c, d)
 # 新比值 = c ÷ d，旧比值 = a ÷ b
 RATIO_INDEX_MAP = {
-    "3": (0, 2, 3, 5),
+    "3": (0, 4, 1, 5),
     "4": (0, 4, 2, 5),
     "5": (0, 4, 1, 5),
 }
@@ -76,6 +76,7 @@ def parse_ratio(text, version):
         print(f"Unexpected number of values ({len(numbers)}):\n{text}")
         return None
 
+    print(f"Parsed numbers: {numbers}")
     ia, ib, ic, id_ = RATIO_INDEX_MAP.get(version, RATIO_INDEX_MAP["3"])
     a, b, c, d = numbers[ia], numbers[ib], numbers[ic], numbers[id_]
     return RatioResult(

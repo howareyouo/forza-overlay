@@ -12,9 +12,10 @@ KEEP_TOOLTIP_KEYS = {"y", "<198>"}
 # 切换 Forza 全屏的按键
 FULLSCREEN_TOGGLE_KEY = "<7>"
 # 连续触发按键的防抖间隔（秒）
-OCR_DEBOUNCE_SECONDS = 0.1
+OCR_DEBOUNCE_SECONDS = 0.2
 # OCR 前图像放大倍数（提升识别率）
 OCR_UPSCALE_FACTOR = 2
+
 # ---- 悬浮窗 ----
 FONT_SIZE = 12
 FONT_NAME = "Bahnschrift"
@@ -34,7 +35,7 @@ TOOLTIP_ANCHORS = {
 }
 # 左右文本标签的水平锚点（relx），按游戏版本配置
 TOOLTIP_LABEL_POS = {
-    "3": (0.125, 0.199),
+    "3": (0.155, 0.179),
     "4": (0.138, 0.162),
     "5": (0.110, 0.252),
 }

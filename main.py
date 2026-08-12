@@ -39,8 +39,7 @@ class ForzaOverlayApp:
 
     def on_release(self, key) -> None:
         key = normalize_key(key)
-        print(key)
-
+        
         if key in OCR_DISABLE_KEYS:
             if self.ocr_enabled:
                 print("OCR is OFF")

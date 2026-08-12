@@ -38,7 +38,7 @@ def _recognize(image, version):
         print(f"Unsupported game version: {version}")
         return ""
 
-    show_image(processed)
+    # show_image(processed)
     return pytesseract.image_to_string(processed)
 
 
