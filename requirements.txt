@@ -1,0 +1,9 @@
+opencv-python
+pytesseract
+pynput
+pywin32
+numpy
+mss
+winrt-Windows.Media.Ocr
+winrt-Windows.Graphics.Imaging
+winrt-Windows.Storage.Streams
