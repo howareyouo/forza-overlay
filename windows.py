@@ -10,6 +10,9 @@ SCREEN_WIDTH = windll.user32.GetSystemMetrics(0)
 SCREEN_HEIGHT = windll.user32.GetSystemMetrics(1)
 # 游戏输出固定为 16:9，用于把窗口客户区换算成画面区域（去黑边）
 GAME_ASPECT = 16 / 9
+# 标题栏估算高度（px）：中文标题（Steam 版"极限竞速：地平线"系列）为 45px，其余为 48px
+TITLEBAR_UWP = 45
+TITLEBAR_DEFAULT = 48
 
 _VERSION_PATTERN = re.compile(r"(?:Forza Horizon|地平线)\s*([345])")
 
@@ -53,6 +56,11 @@ class _WINDOWINFO(ctypes.Structure):
     ]
 
 
+def is_uwp_app(title):
+    """判断是否是UWP应用 (Microsoft Store 版标题是英文, Steam 版标题是中文)"""
+    return "地平线" in title
+
+
 def is_fullscreen(hwnd):
     """判断窗口是否铺满整个屏幕（用于区分全屏/窗口化渲染路径）。"""
     rect = wintypes.RECT()
@@ -71,14 +79,18 @@ def window_client_rect(hwnd, window_title):
     if windll.user32.GetWindowInfo(hwnd, ctypes.byref(wi)):
         left, top, right, bottom = wi.rcClient.left, wi.rcClient.top, wi.rcClient.right, wi.rcClient.bottom
         if right > left and bottom > top:
-            # 无边框窗口化时 GetWindowInfo 会忽略 DWM 标题栏，直接用 48px 默认标题栏高度扣除
-            top += 48
+            # 无边框窗口化时 GetWindowInfo 会忽略 DWM 标题栏，需按标题栏高度扣除；
+            # 中文标题（Steam 版"极限竞速：地平线 4"）的标题栏高度为 45px，其余为 48px
+            top += TITLEBAR_UWP if is_uwp_app(window_title) else TITLEBAR_DEFAULT
             return (left, top, right, bottom)
         # 客户区尺寸异常（如最小化），退回窗口本身
         return (rect.left, rect.top, rect.right, rect.bottom)
 
-    # GetWindowInfo 失败：退回按标题栏估算
-    titlebar = 42 if window_title == "Forza Horizon 5" else 48
+    # GetWindowInfo 失败：退回按标题栏估算（中文标题 45px，其余 48px，FH5 42px）
+    if is_uwp_app(window_title):
+        titlebar = TITLEBAR_UWP
+    else:
+        titlebar = TITLEBAR_DEFAULT
     return (rect.left, rect.top + titlebar, rect.right, rect.bottom)
 
 
@@ -130,3 +142,29 @@ def compute_ocr_region():
     bottom = window_rect[1] + gy + int(gh * ratio["bottom"])
 
     return (left, top, right - left, bottom - top), window_rect, version
+
+
+
+def get_all_window_titles():
+    """获取所有可见窗口的标题列表"""
+    titles = []
+    
+    def enum_callback(hwnd, result_list):
+        """回调函数，每找到一个顶层窗口就会被调用"""
+        # 只收集可见的窗口
+        if win32gui.IsWindowVisible(hwnd):
+            title = win32gui.GetWindowText(hwnd)
+            # 过滤掉空标题
+            if title:
+                result_list.append(title)
+        # 必须返回 True 以继续枚举，返回 False 会停止枚举
+        return True
+
+    # 开始枚举所有顶层窗口
+    win32gui.EnumWindows(enum_callback, titles)
+    return titles
+
+if __name__ == "__main__":
+    all_titles = get_all_window_titles()
+    for title in all_titles:
+        print(title)
